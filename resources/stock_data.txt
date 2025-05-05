@@ -1,0 +1,1 @@
+{"result":{"rows":[{"sku":00000001, "warehouse_name":"Placeholder_warehouse", "item_code":"0001", "item_name":"Товар1", "promised_amount":0, "free_to_sell_amount":5, "reserved_amount":0, "idc":5.00}]}}

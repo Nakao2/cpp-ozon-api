@@ -1,0 +1,12 @@
+{
+   "warehouses": [
+     {
+       "warehouse":"PLACEHOLDER_WAREHOUSE",
+       "deltime":"2"
+     },
+     {
+       "warehouse":"PLACEHOLDER_CLUSTER",
+       "deltime":"3"
+     }
+   ]
+}
