@@ -32,8 +32,8 @@ bool requestStockData() {
     json_input += "\"limit\": 1000,\"offset\": 0,\"warehouse_type\": \"NOT_EXPRESS_DARK_STORE\""s;
     json_input += '}';
     auto r = cpr::Post(cpr::Url{ "api-seller.ozon.ru/v2/analytics/stock_on_warehouses"s },
-                       cpr::Header{ {"Client-Id"s, "placeholder_id"s} },
-                       cpr::Header{ {"Api-Key"s, "placeholder_key"s} },
+                       cpr::Header{ {"Client-Id"s, "Placeholder_Id"s} },
+                       cpr::Header{ {"Api-Key"s, "Placeholder_Key"s} },
                        cpr::Body{ json_input });
     stock_file << r.text;
     return (r.status_code == 200);
@@ -63,8 +63,8 @@ bool requestOrdersData(const std::string& file_name, const std::chrono::time_poi
     cpr::Response r;
     do {
         r = cpr::Post(cpr::Url{ "api-seller.ozon.ru/v2/posting/fbo/list"s },
-            cpr::Header{ {"Client-Id"s, "placeholder_id"s} },
-            cpr::Header{ {"Api-Key"s, "placeholder_key"s} },
+            cpr::Header{ {"Client-Id"s, "Placeholder_Id"s} },
+            cpr::Header{ {"Api-Key"s, "Placeholder_Key"s} },
             cpr::Body{ nlohmann::to_string(json_obj) });
         orders_file << r.text;
         offset += 1000;

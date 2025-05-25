@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include "json_processing.h"
 #include "process_stock.h"
@@ -12,7 +11,7 @@
 using namespace std::string_literals;
 
 class OrdersProcessor : public StockProcessor {
-
+	using Database = std::unordered_map<std::wstring, std::unordered_map<std::wstring, ItemData>>;
 public:
 	OrdersProcessor(int days_offset) :StockProcessor(), days_offset_(days_offset) {
 		// requestThisYearOrders(days_offset);
@@ -39,24 +38,18 @@ private:
 			throw std::runtime_error("This year orders request failure"s);
 		}
 	}
-	void requestLastYearOrders(int days_offset) {
-		int max_delivery_time = 6;
-		if (!requestOrdersData("resources/last_year_orders.txt"s, this->getTime() - std::chrono::years(1) - std::chrono::days(days_offset), 
-							   this->getTime() - std::chrono::years(1) + std::chrono::days(days_offset + max_delivery_time))) {
-			throw std::runtime_error("Last year orders request failure"s);
-		}
-	}
 
 	void writeOrdersData() {
-		auto& database_warehouse = this->getDataWarehouse();
+		auto& database_full = this->getDataFull();
 		auto& database_cluster = this->getDataCluster();
 		std::wfstream file("resources/orders_data.txt"s);
 		while (setItemReader(file, L"result")) {
 			do {
 				std::wstring item_name = getItemName(getParameter(file, L"sku"));
 				std::wstring warehouse_name = getParameter(file, L"warehouse_name");
-				database_cluster[getClusterFromWarehouse(warehouse_name)][item_name].sold += std::stoi(getParameter(file, L"quantity"));
-				database_warehouse[std::move(warehouse_name)][std::move(item_name)].sold += std::stoi(getParameter(file, L"quantity"));
+				int sold = std::stoi(getParameter(file, L"quantity"));
+				database_cluster[getClusterFromWarehouse(warehouse_name)][item_name].sold += sold;
+				database_full[getClusterFromWarehouse(warehouse_name)][std::move(warehouse_name)][std::move(item_name)].sold += sold;
 			} while (toNextItem(file));
 		}
 	}
@@ -68,8 +61,12 @@ private:
 	// We calcuate a simple integral value of the graph in range of time periods
 	// Then we find ratio between integral values of time periods to find the coefficient
 	void calculateSeasonality(int days_offset) {
-		auto* database = &this->getDataWarehouse();
-		for (int k = 0; k < 2; ++k) {
+		std::vector<Database*> location_to_item_ptrs;
+		location_to_item_ptrs.push_back(&this->getDataCluster());
+		for (auto& cluster_to_warehouses : this->getDataFull()) {
+			location_to_item_ptrs.push_back(&cluster_to_warehouses.second);
+		}
+		for (Database* database : location_to_item_ptrs) {
 			for (auto& warehouse_to_item : *database) {
 				if (this->getDeliveryTime(warehouse_to_item.first) == -1) {
 					continue;
@@ -134,7 +131,6 @@ private:
 					item_to_data.second.seasonality = integral_rhs / integral_lhs;
 				}
 			}
-			database = &this->getDataCluster();
 		}
 	}
 

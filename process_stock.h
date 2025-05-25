@@ -12,6 +12,7 @@ using namespace std::string_literals;
 
 struct ItemData {
 	int in_stock = 0;
+	int en_route = 0;
 	int sold = 0;
 	double seasonality = 0.0;
 };
@@ -25,8 +26,8 @@ public:
 		initializeDatabase();
 	}
 
-	Database& getDataWarehouse() {
-		return database_warehouse_;
+	std::unordered_map<std::wstring, Database>& getDataFull() {
+		return database_full_;
 	}
 	Database& getDataCluster() {
 		return database_cluster_;
@@ -53,8 +54,9 @@ public:
 	}
 
 private:
-	Database database_warehouse_;
-	Database database_cluster_;
+	Database database_cluster_; // Cluster to item data
+	std::unordered_map<std::wstring, Database> database_full_; // Cluster to warehouses to item data
+
 	std::unordered_map<std::wstring, std::wstring> warehouse_to_capitalized_; // To fix discrepancy between names in Ozon's stock and orders data
 	std::unordered_map<std::wstring, std::wstring> warehouse_to_cluster_;
 	std::unordered_map<std::wstring, int> warehouse_to_deltime_; // Includes cluster data as well
@@ -63,14 +65,22 @@ private:
 		std::wfstream file("resources/stock_data.txt"s);
 		while (setItemReader(file, L"rows")) {
 			do {
-				std::wstring warehouse_value = getParameter(file, L"warehouse_name");
-				auto it = warehouse_to_capitalized_.find(warehouse_value);
-				if (it != warehouse_to_capitalized_.end()) {
-					warehouse_value = it->second;
+				std::wstring warehouse_name = getParameter(file, L"warehouse_name");
+				auto it1 = warehouse_to_capitalized_.find(warehouse_name);
+				if (it1 != warehouse_to_capitalized_.end()) {
+					warehouse_name = it1->second;
 				}
 				std::wstring item_name = getItemName(getParameter(file, L"sku"));
-				database_cluster_[getClusterFromWarehouse(warehouse_value)][item_name].in_stock += std::stoi(getParameter(file, L"free_to_sell_amount"));
-				database_warehouse_[std::move(warehouse_value)][std::move(item_name)].in_stock = std::stoi(getParameter(file, L"free_to_sell_amount"));
+				int stock = std::stoi(getParameter(file, L"free_to_sell_amount"));
+				int en_route = std::stoi(getParameter(file, L"promised_amount"));
+
+				auto& cluster_item_data = database_cluster_[getClusterFromWarehouse(warehouse_name)][item_name];
+				cluster_item_data.in_stock += stock;
+				cluster_item_data.en_route += en_route;
+
+				auto& warehouse_item_data = database_full_[getClusterFromWarehouse(warehouse_name)][std::move(warehouse_name)][std::move(item_name)];
+				warehouse_item_data.in_stock += stock;
+				warehouse_item_data.en_route += en_route;
 			} while (toNextItem(file));
 		}
 	}

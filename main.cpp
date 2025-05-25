@@ -35,7 +35,6 @@ int main() {
 	std::cout << "Processing"s << '\n';
 	OrdersProcessor p(days_offset);
 	std::cout << "Printing result"s << '\n';
-	printWarehouseData(p);
-	printClusterData(p);
+	printXLS(p);
 	std::cout << "Done!"s;
 }
