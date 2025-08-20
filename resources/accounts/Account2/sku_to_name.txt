@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "sku": "1234567",
+      "name": "CoolItem1",
+      "article": "0001"
+    },
+    {
+      "sku": "12345678",
+      "name": "CoolItem2",
+      "article": "0002"
+    }
+  ]
+} #Example values

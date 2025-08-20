@@ -1,5 +1,5 @@
 A program that recieves remaining stock and recent orders data from Ozon servers.
-Prints deliveries recommendation into an Excel-compatible .csv file based on recieved data.
+Prints deliveries recommendation into an Excel-compatible .xls file based on recieved data.
 Accounts for seasonality changes and other factors which are read from simple format .txt files.
 
 External libraries used:

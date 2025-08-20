@@ -1,0 +1,26 @@
+{
+  "result": {
+    "rows": [
+      {
+        "sku": 12345,
+        "warehouse_name": "ХОРУГВИНО_РФЦ",
+        "item_code": "0000",
+        "item_name": "CoolItem1",
+        "promised_amount": 0,
+        "free_to_sell_amount": 20,
+        "reserved_amount": 0,
+        "idc": 12.34
+      },
+      {
+        "sku": 123456,
+        "warehouse_name": "САНКТ-ПЕТЕРБУРГ_РФЦ",
+        "item_code": "0001",
+        "item_name": "CoolItem2",
+        "promised_amount": 0,
+        "free_to_sell_amount": 7,
+        "reserved_amount": 0,
+        "idc": 12.35
+      }
+    ]
+  }
+} #Example values

@@ -7,15 +7,14 @@
 
 using namespace std::string_literals;
 
-// TODO
-// Improve styles handling
-// Improve filters handling(supports only top row)
 
 struct FontData {
 	std::wstring font_name = L"Calibri";
 	size_t size = 11; // Default font size for Excel spreadsheets
-	std::wstring color = L"#000000"; // rrggbb Black
+	std::wstring font_color = L"#000000"; // rrggbb Black
 	bool bold = false;
+
+	std::wstring interior_color; // If empty, default white will be used
 };
 
 struct CellData {
@@ -106,7 +105,7 @@ class XLSFormatter {
 public:
 
 	XLSFormatter() {
-		styles_.push_back({ L"Calibri", 11, L"#000000", false });
+		styles_.push_back({ L"Calibri", 11, L"#000000", false, L"" });
 	}
 
 	bool setSheet(const std::wstring& sheet_name) {
@@ -159,10 +158,16 @@ public:
 			output += L"\" ss:Size=\"";
 			output += std::to_wstring(styles_[i].size);
 			output += L"\" ss:Color=\"";
-			output += styles_[i].color;
+			output += styles_[i].font_color;
 			output += L"\" ss:Bold=\"";
 			output += std::to_wstring(styles_[i].bold);
-			output += L"\"/></Style>";
+			output += L"\"/>";
+			if (!styles_[i].interior_color.empty()) {
+				output += L"<Interior ss:Color=\"";
+				output += styles_[i].interior_color;
+				output += L"\" ss:Pattern=\"Solid\"/>";
+			}
+			output += L"</Style>";
 		}
 		output += L"</Styles>";
 

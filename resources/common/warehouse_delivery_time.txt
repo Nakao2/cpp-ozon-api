@@ -1,0 +1,16 @@
+{
+   "warehouses": [
+     {
+       "warehouse":"ХОРУГВИНО_РФЦ",
+       "deltime":"1"
+     },
+     {
+       "warehouse":"ХОРУГВИНО_КГТ",
+       "deltime":"1"
+     },
+     {
+       "warehouse":"САНКТ-ПЕТЕРБУРГ_РФЦ",
+       "deltime":"3"
+     }
+   ]
+} #Example values

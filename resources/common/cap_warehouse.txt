@@ -1,0 +1,12 @@
+{
+  "warehouses": [
+    {
+      "warehouse": "Санкт_Петербург_РФЦ",
+      "warehouse_cap": "САНКТ-ПЕТЕРБУРГ_РФЦ"
+    },
+    {
+      "warehouse": "Хоругвино_РФЦ_НЕГАБАРИТ",
+      "warehouse_cap": "ХОРУГВИНО_КГТ"
+    }
+  ]
+} #Example values

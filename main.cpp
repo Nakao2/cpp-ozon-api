@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 #include <chrono>
+#include <thread>
+#include <filesystem>
 
 #include "log_duration2.h"
 #include "print_func.h"
@@ -12,29 +14,34 @@
 
 
 using namespace std::string_literals;
+using namespace std::chrono_literals;
+
+std::string InputHelper() {
+	std::cout << "Available accounts:\n";
+	std::filesystem::path accounts_path = "resources/accounts"s;
+	if (std::filesystem::is_empty(accounts_path)) {
+		throw std::runtime_error("no_accounts_present");
+	}
+	for (const auto& dir_entry : std::filesystem::directory_iterator(accounts_path)) {
+		std::cout << dir_entry.path().filename() << '\n';
+	}
+	std::cout << "Enter account name(without double quotes)\n";
+	std::string account_name;
+	std::cin >> account_name;
+	accounts_path.append(account_name);
+	while (!std::filesystem::is_directory(accounts_path)) {
+		std::cout << "Enter account name\n";
+		std::cin >> account_name;
+		accounts_path.replace_filename(account_name);
+	}
+	return account_name;
+}
 
 int main() {
-	std::cout << "Enter days offset"s << '\n';
-	int days_offset = 0;
+	std::string account_name = InputHelper();
+	std::cout << "Enter days offset\n"s;
+	int days_offset;
 	std::cin >> days_offset;
-	std::chrono::time_point<std::chrono::system_clock> time_now(std::chrono::system_clock::now());
-	std::cout << "Sending request to the server"s << '\n';
-	if (!requestStockData() || !requestOrdersData("resources/orders_data.txt"s, time_now - std::chrono::days(days_offset), time_now)) {
-		throw std::runtime_error("Http request failure"s);
-	}
-	std::cout << "Checking server response for errors"s << '\n';
-	std::wfstream file("resources/stock_data.txt"s);
-	if (checkIllform(file)) {
-		throw std::runtime_error("Stock file illformed"s);
-	}
-	file.close();
-	file.open("resources/orders_data.txt"s);
-	if (checkIllform(file)) {
-		throw std::runtime_error("Orders file illformed"s);
-	}
-	std::cout << "Processing"s << '\n';
-	OrdersProcessor p(days_offset);
-	std::cout << "Printing result"s << '\n';
-	printXLS(p);
-	std::cout << "Done!"s;
+	OrdersProcessor op(account_name, days_offset);
+	op.printInXLS();
 }

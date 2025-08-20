@@ -1,0 +1,14 @@
+{
+  "result": [
+    {
+      "quantity": 28,
+      "sku": "12345",
+      "warehouse": "ХОРУГВИНО_РФЦ"
+    },
+    {
+      "quantity": 12,
+      "sku": "123456",
+      "warehouse": "ХОРУГВИНО_РФЦ"
+    }
+  ]
+} #Example values

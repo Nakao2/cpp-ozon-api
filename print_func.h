@@ -18,14 +18,16 @@ void printXLS(OrdersProcessor& source) {
 	std::chrono::time_point<std::chrono::system_clock> now = source.getTime();
 	std::string date = formDateString(now); // 2024-09-25T09:01:05.000Z (example)
 	date.resize(10); // 2024-09-25 (example)
-	std::wfstream output("RESULT"s + date + ".xls", std::ios::out | std::ios::trunc);
-	std::wfstream input_helper_file("resources/xls_input.txt"s, std::ios::in);
-	std::wstring input_helper = getStringFromFile(input_helper_file);
+	std::wfstream output("RESULT/RESULT-"s + date +
+						'(' + std::to_string(source.getDaysOffset()) + " days)"s + ".xls"s, std::ios::out | std::ios::trunc);
+	std::wfstream input_helper_file("resources/common/xls_input.txt"s, std::ios::in);
+	std::wstring input_helper = getWStringFromFile(input_helper_file);
 	auto it1 = input_helper.begin();
 	auto it2 = it1;
 
 	XLSFormatter table;
-	table.addStyle({ L"Calibri", 12, L"#000000", true });
+	table.addStyle({ L"Calibri", 12, L"#000000", true, L"" }); // id = 1. Bold
+	table.addStyle({ L"Calibri", 11, L"#000000", false, L"#FFFF00" }); // id = 2. Yellow fill
 
 	it2 = std::find(it1, input_helper.end(), L';');
 	table.setSheet(std::wstring(it1, it2));
@@ -53,6 +55,7 @@ void printXLS(OrdersProcessor& source) {
 				table[row][5] = item_to_data.second.en_route;
 				table[row][6] = item_to_data.second.sold;
 				double seasonality = (item_to_data.second.seasonality < VERY_SMALL_NUMBER) ? 1 : item_to_data.second.seasonality;
+				seasonality = std::round(seasonality * 100) / 100; // round to hundredths
 				table[row][7] = seasonality;
 
 				double sales_before_delivery;
@@ -72,11 +75,18 @@ void printXLS(OrdersProcessor& source) {
 				else {
 					table[row][9] = 0.0;
 				}
+
+				if (expected_stock < -4.499999) { // if expected stock rounds to -5 and below
+					for (int column = 1; column <= 9; ++column) {
+						table[row][column].style_id = 2;
+					}
+				}
+
 				++row;
 			}
 		}
 	}
-	table.applyFilters({ 1, 3 });
+	table.applyFilters({ 1, 9 });
 
 	it2 = std::find(it1, input_helper.end(), L';');
 	table.setSheet(std::wstring(it1, it2));
@@ -104,6 +114,7 @@ void printXLS(OrdersProcessor& source) {
 			table[row][4] = item_to_data.second.en_route;
 			table[row][5] = item_to_data.second.sold;
 			double seasonality = (item_to_data.second.seasonality < VERY_SMALL_NUMBER) ? 1 : item_to_data.second.seasonality;
+			seasonality = std::round(seasonality * 100) / 100;
 			table[row][6] = seasonality;
 
 			double sales_before_delivery;
@@ -123,10 +134,17 @@ void printXLS(OrdersProcessor& source) {
 			else {
 				table[row][8] = 0.0;
 			}
+
+			if (expected_stock < -4.499999) { // if expected stock rounds to -5 and below
+				for (int column = 1; column <= 8; ++column) {
+					table[row][column].style_id = 2;
+				}
+			}
+
 			++row;
 		}
 	}
-	table.applyFilters({ 1, 2 });
+	table.applyFilters({ 1, 8 });
 
 	output << table.to_string();
 }
